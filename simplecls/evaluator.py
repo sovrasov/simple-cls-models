@@ -1,3 +1,4 @@
+import time
 import torch
 from dataclasses import dataclass
 from tqdm import tqdm
@@ -25,6 +26,7 @@ class Evaluator:
         # switch to eval mode
         self.model.eval()
         loop = tqdm(enumerate(self.val_loader), total=len(self.val_loader), leave=False)
+        start = time.time()
         for it, (imgs, gt_cats) in loop:
             # put image and keypoints on the appropriate device
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
@@ -45,6 +47,7 @@ class Evaluator:
             # write to writer for tensorboard
             self.writer.add_scalar('Val/ACC', acc_meter.avg, global_step=epoch)
 
-        print(f'Top-1 accurace: {acc_meter.avg}')
+        print(f'Top-1 accuracy: {acc_meter.avg}')
+        print(f'Val time: {time.time() - start}')
 
         return acc_meter.avg

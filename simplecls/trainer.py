@@ -37,6 +37,7 @@ class Trainer:
         self.model.train()
         self.num_iters = len(self.train_loader)
         start = time.time()
+        epoch_start = time.time()
         loop = tqdm(enumerate(self.train_loader), total=self.num_iters, leave=False)
         for it, (imgs, gt_cats) in loop:
             # put image and keypoints on the appropriate device
@@ -51,6 +52,7 @@ class Trainer:
             self.optimizer.step()
             # measure metrics
             acc = compute_accuracy(pred_cats, gt_cats)
+            acc_meter.update(acc)
             # record loss
             losses.update(loss.item(), imgs.size(0))
             # write to writer for tensorboard
@@ -66,7 +68,7 @@ class Trainer:
                              acc_avg = acc_meter.avg,
                              lr=self.optimizer.param_groups[0]['lr'])
             # compute eta
-            batch_time.update(time.time() - start)
+            batch_time.update(time.time() - epoch_start)
             nb_this_epoch = self.num_iters - (it + 1)
             nb_future_epochs = (self.max_epoch - (epoch + 1)) * self.num_iters
             eta_seconds = batch_time.avg * (nb_this_epoch+nb_future_epochs)
@@ -90,7 +92,7 @@ class Trainer:
                             lr=self.optimizer.param_groups[0]['lr'])
                         )
 
-            start = time.time()
+            epoch_start = time.time()
             if (self.debug and it == self.debug_steps):
                 break
 
@@ -101,3 +103,4 @@ class Trainer:
             self.scheduler.step()
 
         print(f'Final avg batch time: {batch_time.avg}')
+        print(f'Epoch time: {time.time() - start}')

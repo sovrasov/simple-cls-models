@@ -22,11 +22,11 @@ __all__ = ['EfficientNet', 'calc_tf_padding', 'EffiInvResUnit', 'EffiInitBlock',
 import math
 import os
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
-from torch.cuda.amp import autocast
-
+from inspect import isfunction
 from .timm_wrapper import ModelInterface, Dropout
 
 
@@ -1026,8 +1026,6 @@ class EfficientNet(ModelInterface):
                         tf_mode=tf_mode))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)
-        self.loss = self.loss.split(',')
-        activation = activation if 'softmax' in self.loss else lambda: nn.PReLU(init=0.25)
         self.features.add_module("final_block", conv1x1_block(
             in_channels=in_channels,
             out_channels=final_block_channels,
