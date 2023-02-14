@@ -67,7 +67,7 @@ class TimmModelsWrapper(ModelInterface):
         if self.extra_head is not None:
             extra_features = self.extra_head(glob_features.view(glob_features.shape[0], -1))
             return logits, extra_features
-        return (logits,)
+        return logits
 
     def extract_features(self, x):
         return self.model.forward_features(x)

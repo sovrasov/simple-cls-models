@@ -29,7 +29,7 @@ class Evaluator:
             # put image and keypoints on the appropriate device
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
-            pred_cats = self.model(imgs, gt_cats)
+            pred_cats = self.model(imgs)
             top1 = compute_accuracy(pred_cats, gt_cats, reduce_mean=False)
             acc_meter.update(top1, pred_cats.shape[0])
 

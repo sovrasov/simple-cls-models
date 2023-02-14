@@ -63,7 +63,6 @@ def main():
                       max_epoch=cfg.data.max_epochs,
                       log_path=cfg.output_dir,
                       device=args.device,
-                      save_chkpt=args.wo_saving_checkpoint,
                       save_freq=cfg.utils.save_freq,
                       print_freq=cfg.utils.print_freq,
                       train_step=train_step)
@@ -72,8 +71,7 @@ def main():
                           val_loader=val_loader,
                           cfg=cfg,
                           device=args.device,
-                          max_epoch=cfg.data.max_epochs,
-                          path_to_save_imgs=cfg.output_dir)
+                          max_epoch=cfg.data.max_epochs)
     # main loop
     if cfg.regime.type == "evaluation":
         evaluator.run()
@@ -85,7 +83,7 @@ def main():
             is_last_epoch = epoch == cfg.data.max_epochs - 1
             trainer.train(epoch, is_last_epoch)
             if epoch % cfg.utils.eval_freq == 0 or is_last_epoch:
-                evaluator.val(epoch, is_last_epoch)
+                evaluator.val(epoch)
 
 
 if __name__ == '__main__':

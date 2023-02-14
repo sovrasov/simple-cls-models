@@ -42,9 +42,9 @@ class Trainer:
             # put image and keypoints on the appropriate device
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
-            pred_cats = self.model(imgs, gt_cats)
+            pred_cats = self.model(imgs)
             # get parsed loss
-            loss = self.loss(gt_cats, pred_cats)
+            loss = self.loss(pred_cats, gt_cats)
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
             loss.backward()
