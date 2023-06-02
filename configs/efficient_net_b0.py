@@ -1,5 +1,5 @@
 data = dict(
-    root="/home/vsovraso/data/MNIST/",
+    root="data/MNIST/",
     resize=(64,64),
     train_batch_size=64,
     val_batch_size=128,
