@@ -1,6 +1,6 @@
 ## Get started
 
-1. Extract mnist.zip to <repo_root>/data folder.
+1. Run `get_data.sh` to download MNIST dataset.
 2. Setup an environment with pytorch + ipex/cuda.
 3. Open `run_perf_eval.sh`, leave only relevant devices in `devices` list and run the script.
 4. At the end of each log file, the resulting performance numbers are provided.
