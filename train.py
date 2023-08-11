@@ -9,6 +9,8 @@ from simplecls.torch_utils import set_random_seed, resume_from
 from simplecls.builders import build_model, build_optimizer, build_scheduler, build_loss, build_loader
 from simplecls.trainer import Trainer
 from simplecls.evaluator import Evaluator
+import intel_extension_for_pytorch as ipex
+import torch
 
 
 def reset_config(cfg, args):
@@ -41,6 +43,9 @@ def main():
 
     optimizer = build_optimizer(cfg, net)
     scheduler = build_scheduler(cfg, optimizer)
+
+    if args.device == 'xpu':
+        net, optimizer = ipex.optimize(net, optimizer=optimizer, dtype=torch.float32)
 
     if cfg.model.resume:
         if check_isfile(cfg.model.resume):

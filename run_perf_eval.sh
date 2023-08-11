@@ -6,7 +6,7 @@ do
     for dev in "${devices[@]}"
     do
         command="train.py --config ./configs/$model.py --device $dev --output_dir ./$model-$dev"
-        python3 $command | tee -a ./$model-$dev.log
+        #python3 $command | tee -a ./$model-$dev.log
         echo $command
     done
 done
