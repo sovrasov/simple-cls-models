@@ -32,15 +32,17 @@ class Trainer:
         losses = AverageMeter()
         acc_meter = AverageMeter()
         batch_time = AverageMeter()
+        compute_time = AverageMeter()
 
         # switch to train mode and train one epoch
         self.model.train()
         self.num_iters = len(self.train_loader)
         start = time.time()
-        epoch_start = time.time()
+        iter_start = time.time()
         loop = tqdm(enumerate(self.train_loader), total=self.num_iters, leave=False)
         for it, (imgs, gt_cats) in loop:
             # put image and keypoints on the appropriate device
+            compute_start = time.time()
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
             pred_cats = self.model(imgs)
@@ -68,7 +70,8 @@ class Trainer:
                              acc_avg = acc_meter.avg,
                              lr=self.optimizer.param_groups[0]['lr'])
             # compute eta
-            batch_time.update(time.time() - epoch_start)
+            compute_time.update(time.time() - compute_start)
+            batch_time.update(time.time() - iter_start)
             nb_this_epoch = self.num_iters - (it + 1)
             nb_future_epochs = (self.max_epoch - (epoch + 1)) * self.num_iters
             eta_seconds = batch_time.avg * (nb_this_epoch+nb_future_epochs)
@@ -92,7 +95,7 @@ class Trainer:
                             lr=self.optimizer.param_groups[0]['lr'])
                         )
 
-            epoch_start = time.time()
+            iter_start = time.time()
             if (self.debug and it == self.debug_steps):
                 break
 
@@ -103,4 +106,5 @@ class Trainer:
             self.scheduler.step()
 
         print(f'Final avg batch time: {batch_time.avg}')
+        print(f'Final avg batch compute time: {compute_time.avg}')
         print(f'Epoch time: {time.time() - start}')

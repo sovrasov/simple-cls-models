@@ -9,7 +9,11 @@ from simplecls.torch_utils import set_random_seed, resume_from
 from simplecls.builders import build_model, build_optimizer, build_scheduler, build_loss, build_loader
 from simplecls.trainer import Trainer
 from simplecls.evaluator import Evaluator
-import intel_extension_for_pytorch as ipex
+try:
+    import intel_extension_for_pytorch as ipex
+    has_ipex = True
+except:
+    has_ipex = False
 import torch
 
 
