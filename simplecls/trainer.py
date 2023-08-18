@@ -39,6 +39,7 @@ class Trainer:
         self.num_iters = len(self.train_loader)
         start = time.time()
         iter_start = time.time()
+        total_compute_time = 0.
         loop = tqdm(enumerate(self.train_loader), total=self.num_iters, leave=False)
         for it, (imgs, gt_cats) in loop:
             # put image and keypoints on the appropriate device
@@ -71,6 +72,7 @@ class Trainer:
                              lr=self.optimizer.param_groups[0]['lr'])
             # compute eta
             compute_time.update(time.time() - compute_start)
+            total_compute_time += time.time() - compute_start
             batch_time.update(time.time() - iter_start)
             nb_this_epoch = self.num_iters - (it + 1)
             nb_future_epochs = (self.max_epoch - (epoch + 1)) * self.num_iters
@@ -108,3 +110,4 @@ class Trainer:
         print(f'Final avg batch time: {batch_time.avg}')
         print(f'Final avg batch compute time: {compute_time.avg}')
         print(f'Epoch time: {time.time() - start}')
+        print(f'Epoch time compute: {total_compute_time}')

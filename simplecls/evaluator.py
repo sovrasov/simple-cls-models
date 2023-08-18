@@ -27,13 +27,16 @@ class Evaluator:
         self.model.eval()
         loop = tqdm(enumerate(self.val_loader), total=len(self.val_loader), leave=False)
         start = time.time()
+        total_compute_time = 0.
         for it, (imgs, gt_cats) in loop:
             # put image and keypoints on the appropriate device
+            compute_start = time.time()
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
             pred_cats = self.model(imgs)
             top1 = compute_accuracy(pred_cats, gt_cats, reduce_mean=False)
             acc_meter.update(top1, pred_cats.shape[0])
+            total_compute_time += time.time() - compute_start
 
             if epoch is not None:
                 # update progress bar
@@ -49,5 +52,6 @@ class Evaluator:
 
         print(f'Top-1 accuracy: {acc_meter.avg}')
         print(f'Val time: {time.time() - start}')
+        print(f'Val compute time: {total_compute_time}')
 
         return acc_meter.avg
