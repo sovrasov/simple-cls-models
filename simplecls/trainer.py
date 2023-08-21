@@ -36,6 +36,10 @@ class Trainer:
         batch_time = AverageMeter()
         compute_time = AverageMeter()
 
+        cuda_half_p = self.half_precision and torch.cuda.is_available()
+        if cuda_half_p:
+            scaler = torch.cuda.amp.GradScaler()
+
         # switch to train mode and train one epoch
         self.model.train()
         self.num_iters = len(self.train_loader)
@@ -48,14 +52,23 @@ class Trainer:
             compute_start = time.time()
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
-            with torch.cuda.amp.autocast(enabled=self.half_precision):
+            with torch.cuda.amp.autocast(enabled=cuda_half_p):
                 pred_cats = self.model(imgs)
                 # get parsed loss
                 loss = self.loss(pred_cats, gt_cats)
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            if cuda_half_p:
+                scaler.scale(loss).backward()
+            else:
+                loss.backward()
+
+            if cuda_half_p:
+                scaler.step(self.optimizer)
+                scaler.update()
+            else:
+                self.optimizer.step()
+
             # measure metrics
             acc = compute_accuracy(pred_cats, gt_cats)
             acc_meter.update(acc)

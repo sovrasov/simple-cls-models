@@ -22,6 +22,10 @@ def reset_config(cfg, args):
         cfg['data']['root'] = args.root
     if args.output_dir:
         cfg['output_dir'] = args.output_dir
+    if args.precision == 'fp16':
+        cfg['half_precision'] = True
+    else:
+        cfg['half_precision'] = False
 
 
 def main():
@@ -31,6 +35,8 @@ def main():
     parser.add_argument('--config', type=str, default='./configs/default_config.py', help='path to config')
     parser.add_argument('--device', type=str, default='cuda', choices=['cuda','cpu', 'xpu'],
                         help='choose device to train on')
+    parser.add_argument('--precision', type=str, default='fp32', choices=['fp32','fp16'],
+                        help='choose training precision (works for non-cpu devices)')
     args = parser.parse_args()
     cfg = read_py_config(args.config)
     reset_config(cfg, args)
@@ -64,7 +70,6 @@ def main():
     train_loader, val_loader = build_loader(cfg)
     train_step = (start_epoch - 1)*len(train_loader) if start_epoch > 1 else 0
 
-
     trainer = Trainer(model=net,
                       train_loader=train_loader,
                       optimizer=optimizer,
@@ -82,7 +87,8 @@ def main():
                           val_loader=val_loader,
                           cfg=cfg,
                           device=args.device,
-                          max_epoch=cfg.data.max_epochs)
+                          max_epoch=cfg.data.max_epochs,
+                          half_precision=cfg.half_precision)
     # main loop
     if cfg.regime.type == "evaluation":
         evaluator.run()

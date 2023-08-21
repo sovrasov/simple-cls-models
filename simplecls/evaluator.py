@@ -17,11 +17,13 @@ class Evaluator:
     device: str = 'cuda'
     debug: bool = False
     debug_steps: int = 30
+    half_precision: bool = False
 
     @torch.no_grad()
     def val(self, epoch=None):
         ''' procedure launching main validation '''
         acc_meter = AverageMeter()
+        cuda_half_p = self.half_precision and torch.cuda.is_available()
 
         # switch to eval mode
         self.model.eval()
@@ -33,7 +35,8 @@ class Evaluator:
             compute_start = time.time()
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
-            pred_cats = self.model(imgs)
+            with torch.cuda.amp.autocast(enabled=cuda_half_p):
+                pred_cats = self.model(imgs)
             top1 = compute_accuracy(pred_cats, gt_cats, reduce_mean=False)
             acc_meter.update(top1, pred_cats.shape[0])
             total_compute_time += time.time() - compute_start
