@@ -3,6 +3,7 @@ import datetime
 
 from tqdm import tqdm
 from dataclasses import dataclass
+import torch
 
 from .utils import AverageMeter
 from .torch_utils import compute_accuracy, put_on_device, save_snap
@@ -10,7 +11,7 @@ from .torch_utils import compute_accuracy, put_on_device, save_snap
 
 @dataclass(init=True)
 class Trainer:
-    model: object
+    model: torch.nn.Module
     train_loader: object
     optimizer: object
     scheduler: object
@@ -25,6 +26,7 @@ class Trainer:
     save_freq: int = 10
     print_freq: int = 10
     train_step: int = 0
+    half_precision: bool = False
 
     def train(self, epoch, is_last_epoch):
         ''' procedure launching main training'''
@@ -46,9 +48,10 @@ class Trainer:
             compute_start = time.time()
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
-            pred_cats = self.model(imgs)
-            # get parsed loss
-            loss = self.loss(pred_cats, gt_cats)
+            with torch.cuda.amp.autocast(enabled=self.half_precision):
+                pred_cats = self.model(imgs)
+                # get parsed loss
+                loss = self.loss(pred_cats, gt_cats)
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
             loss.backward()

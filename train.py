@@ -49,7 +49,8 @@ def main():
     scheduler = build_scheduler(cfg, optimizer)
 
     if args.device == 'xpu':
-        net, optimizer = ipex.optimize(net, optimizer=optimizer, dtype=torch.float32)
+        dtype = torch.bfloat16 if cfg.half_precision else torch.float32
+        net, optimizer = ipex.optimize(net, optimizer=optimizer, dtype=dtype)
 
     if cfg.model.resume:
         if check_isfile(cfg.model.resume):
@@ -74,7 +75,8 @@ def main():
                       device=args.device,
                       save_freq=cfg.utils.save_freq,
                       print_freq=cfg.utils.print_freq,
-                      train_step=train_step)
+                      train_step=train_step,
+                      half_precision=cfg.half_precision)
 
     evaluator = Evaluator(model=net,
                           val_loader=val_loader,

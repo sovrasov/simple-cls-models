@@ -12,6 +12,7 @@ data = dict(
 
 model = dict(name='mobilenetv3_large_21k', pretrained=True, num_classes=9)
 
+half_precision = False
 
 optim = dict(name='adam', lr=0.001, momentum=0.9, wd=1e-4, betas=(0.9, 0.999), rho=0.9, alpha=0.99, nesterov=True)
 

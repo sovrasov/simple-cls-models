@@ -11,7 +11,6 @@ data = dict(
 
 model = dict(name='efficientnetv2_s', pretrained=True, num_classes=10)
 
-
 optim = dict(name='sgd', lr=0.001, momentum=0.9, wd=1e-4, betas=(0.9, 0.999), rho=0.9, alpha=0.99, nesterov=True)
 
 scheduler = dict(name='multistepLR', gamma=0.6, exp_gamma=0.975, steps=[1])
