@@ -27,9 +27,6 @@ def main():
 
         with open(file_p) as f:
             data = f.read()
-            matched_acc_lines = re.findall('Top-1 accuracy: \d+.\d+', data)
-            final_acc = float(re.findall("\d+\.\d+", matched_acc_lines[-1])[0])
-            models_results[m_name][device]["accuracy"] = final_acc
 
             matched_epoch_time_lines = re.findall('Epoch time compute: \d+.\d+', data)
             final_epoch_time = float(re.findall("\d+\.\d+", matched_epoch_time_lines[-1])[0])
@@ -39,12 +36,16 @@ def main():
             final_val_time = float(re.findall("\d+\.\d+", matched_val_time_lines[-1])[0])
             models_results[m_name][device]["val_compute_time"] = final_val_time
 
+            matched_acc_lines = re.findall('Top-1 accuracy: \d+.\d+', data)
+            final_acc = float(re.findall("\d+\.\d+", matched_acc_lines[-1])[0])
+            models_results[m_name][device]["accuracy"] = final_acc
+
     for model in models_results:
         print(model + ":")
         for dev in models_results[model]:
             device_result = ""
             for name, val in models_results[model][dev].items():
-                device_result += f"{val}; "
+                device_result += f"{val:.3f};"
             print("\t" + dev + ": " + device_result)
 
 
