@@ -1,3 +1,4 @@
+from functools import partial
 import time
 import datetime
 
@@ -39,6 +40,13 @@ class Trainer:
         cuda_half_p = self.half_precision and torch.cuda.is_available()
         if cuda_half_p:
             scaler = torch.cuda.amp.GradScaler()
+            autocaster = partial(torch.cuda.amp.autocast, enabled=True)
+        else:
+            autocaster = partial(torch.cuda.amp.autocast, enabled=False)
+
+        xpu_half_p = self.half_precision and hasattr(torch, 'xpu')
+        if xpu_half_p:
+            autocaster = partial(torch.xpu.amp.autocast, enabled=True, dtype=torch.bfloat16)
 
         # switch to train mode and train one epoch
         self.model.train()
@@ -48,15 +56,11 @@ class Trainer:
         total_compute_time = 0.
         loop = tqdm(enumerate(self.train_loader), total=self.num_iters, leave=False)
         for it, (imgs, gt_cats) in loop:
-            # put image and keypoints on the appropriate device
             compute_start = time.time()
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
-            # compute output and loss
-            with torch.cuda.amp.autocast(enabled=cuda_half_p):
+            with autocaster():
                 pred_cats = self.model(imgs)
-                # get parsed loss
                 loss = self.loss(pred_cats, gt_cats)
-            # compute gradient and do SGD step
             self.optimizer.zero_grad()
             if cuda_half_p:
                 scaler.scale(loss).backward()

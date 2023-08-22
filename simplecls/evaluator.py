@@ -1,3 +1,4 @@
+from functools import partial
 import time
 import torch
 from dataclasses import dataclass
@@ -24,6 +25,14 @@ class Evaluator:
         ''' procedure launching main validation '''
         acc_meter = AverageMeter()
         cuda_half_p = self.half_precision and torch.cuda.is_available()
+        if cuda_half_p:
+            autocaster = partial(torch.cuda.amp.autocast, enabled=True)
+        else:
+            autocaster = partial(torch.cuda.amp.autocast, enabled=False)
+
+        xpu_half_p = self.half_precision and hasattr(torch, 'xpu')
+        if xpu_half_p:
+            autocaster = partial(torch.xpu.amp.autocast, enabled=True, dtype=torch.bfloat16)
 
         # switch to eval mode
         self.model.eval()
@@ -35,7 +44,7 @@ class Evaluator:
             compute_start = time.time()
             imgs, gt_cats = put_on_device([imgs, gt_cats], self.device)
             # compute output and loss
-            with torch.cuda.amp.autocast(enabled=cuda_half_p):
+            with autocaster():
                 pred_cats = self.model(imgs)
             top1 = compute_accuracy(pred_cats, gt_cats, reduce_mean=False)
             acc_meter.update(top1, pred_cats.shape[0])
