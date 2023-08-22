@@ -56,7 +56,7 @@ def main():
 
     if args.device == 'xpu':
         dtype = torch.bfloat16 if cfg.half_precision else torch.float32
-        net, optimizer = ipex.optimize(net, optimizer=optimizer, dtype=dtype)
+        net, optimizer = torch.xpu.optimize(net, optimizer=optimizer, dtype=dtype, level="O1")
 
     if cfg.model.resume:
         if check_isfile(cfg.model.resume):
