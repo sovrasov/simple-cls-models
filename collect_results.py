@@ -4,6 +4,8 @@ import os.path as osp
 from pathlib import Path
 import re
 
+from simplecls.utils import read_py_config
+
 
 def main():
     parser = argparse.ArgumentParser(description='cls training results parsing')
@@ -19,6 +21,9 @@ def main():
     models_results = {}
     for file_p in sorted(log_files_list):
         d_name = osp.dirname(file_p)
+        conf_path = os.path.join(d_name, "dumped_config.py")
+        config = read_py_config(conf_path)
+        batch_size = config["data"]["train_batch_size"]
         m_name = Path(d_name.split("-")[0]).stem
         device = d_name.split("-")[1]
         if not m_name in models_results:
@@ -39,6 +44,10 @@ def main():
             matched_acc_lines = re.findall('Top-1 accuracy: \d+.\d+', data)
             final_acc = float(re.findall("\d+\.\d+", matched_acc_lines[-1])[0])
             models_results[m_name][device]["accuracy"] = final_acc
+
+            matched_batch_time = re.findall('Final avg batch compute time: \d+.\d+', data)
+            batch_time = float(re.findall("\d+\.\d+", matched_batch_time[-1])[0])
+            models_results[m_name][device]["imgs_sec"] = 1. / batch_time * batch_size
 
     for model in models_results:
         print(model + ":")
