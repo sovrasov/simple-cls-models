@@ -1,10 +1,10 @@
 data = dict(
     root="data/MNIST/",
-    resize=(64,64),
-    train_batch_size=64,
+    resize=(224,224),
+    train_batch_size=256,
     val_batch_size=128,
     max_epochs=3,
-    num_workers=1,
+    num_workers=4,
     normalization=dict(mean=[0.5931, 0.4690, 0.4229],
                        std=[0.2471, 0.2214, 0.2157])
 )
