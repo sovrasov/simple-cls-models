@@ -50,33 +50,9 @@ class TimmModelsWrapper(ModelInterface):
         self.num_head_features = self.model.num_features
         self.num_features = (self.model.conv_head.in_channels if self.is_mobilenet
                              else self.model.num_features)
-        self.dropout = Dropout(dropout_cls)
-        self.pooling_type = pooling_type
-        self.model.classifier = self.model.get_classifier()
-        if extra_head_dim > 0:
-            self.extra_head = nn.Linear(self.num_features, out_features=extra_head_dim)
-        else:
-            self.extra_head = None
 
     def forward(self, x):
-        y = self.extract_features(x)
-        glob_features = self._glob_feature_vector(y, self.pooling_type, reduce_dims=False)
-        logits = self.infer_head(glob_features)
-        if not self.training:
-            return logits
-        if self.extra_head is not None:
-            extra_features = self.extra_head(glob_features.view(glob_features.shape[0], -1))
-            return logits, extra_features
-        return logits
-
-    def extract_features(self, x):
-        return self.model.forward_features(x)
-
-    def infer_head(self, x):
-        if self.is_mobilenet:
-            x  = self.model.act2(self.model.conv_head(x))
-        self.dropout(x)
-        return self.model.classifier(x.view(x.shape[0], -1))
+        return self.model(x)
 
     def get_config_optim(self, lrs):
         parameters = [
