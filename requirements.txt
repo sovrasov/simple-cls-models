@@ -6,3 +6,4 @@ tensorboard-data-server
 tensorboard-plugin-wit
 addict
 albumentations
+pytorch-lightning
