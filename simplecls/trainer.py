@@ -40,9 +40,9 @@ class Trainer:
         cuda_half_p = self.half_precision and torch.cuda.is_available()
         if cuda_half_p:
             scaler = torch.cuda.amp.GradScaler()
-            autocaster = partial(torch.cuda.amp.autocast, enabled=True)
+            autocaster = partial(torch.amp.autocast, enabled=True, device_type="cuda")
         else:
-            autocaster = partial(torch.cuda.amp.autocast, enabled=False)
+            autocaster = partial(torch.autocast, enabled=False, device_type="cuda")
 
         xpu_half_p = self.half_precision and hasattr(torch, 'xpu')
         if xpu_half_p:

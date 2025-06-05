@@ -3,14 +3,15 @@ import random
 import cv2 as cv
 import numpy as np
 import torch
-from albumentations.core.transforms_interface import BasicTransform, ImageOnlyTransform, DualTransform, to_tuple
+from albumentations.core.transforms_interface import BasicTransform, ImageOnlyTransform
+from albumentations.core.utils import to_tuple
 
 
 class ConvertColor(ImageOnlyTransform):
     """Converting color of the image
     """
-    def __init__(self, always_apply=True, p=1.0):
-        super().__init__(always_apply=always_apply, p=p)
+    def __init__(self, p=1.0):
+        super().__init__(p=p)
 
     def apply(self, img, **params):
         if img.shape[0] == 1:
@@ -21,8 +22,8 @@ class ConvertColor(ImageOnlyTransform):
 class RandomRescale(ImageOnlyTransform):
     """Rescaling image
     """
-    def __init__(self, scale_limit=0.1, interpolation=cv.INTER_LINEAR, always_apply=False, p=0.5):
-        super().__init__(always_apply=always_apply, p=p)
+    def __init__(self, scale_limit=0.1, interpolation=cv.INTER_LINEAR, p=0.5):
+        super().__init__(p=p)
         self.scale_limit = to_tuple(scale_limit, bias=0)
         self.interpolation = interpolation
 
@@ -42,8 +43,8 @@ class RandomRescale(ImageOnlyTransform):
 class RandomRotate(ImageOnlyTransform):
     """Rotate image
     """
-    def __init__(self, angle_limit=0.1, interpolation=cv.INTER_LINEAR, always_apply=False, p=0.5):
-        super().__init__(always_apply=always_apply, p=p)
+    def __init__(self, angle_limit=0.1, interpolation=cv.INTER_LINEAR, p=0.5):
+        super().__init__(p=p)
         self.angle_limit = to_tuple(angle_limit)
         self.interpolation = interpolation
 
@@ -73,8 +74,8 @@ class RandomRotate(ImageOnlyTransform):
 class ToTensor(BasicTransform):
     """Converting iamge to tensor
     """
-    def __init__(self, img_shape, always_apply=True, p=1.0):
-        super().__init__(always_apply=always_apply, p=p)
+    def __init__(self, img_shape, p=1.0):
+        super().__init__(p=p)
         self.img_final_shape = img_shape
 
     @property

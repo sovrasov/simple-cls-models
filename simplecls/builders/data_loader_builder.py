@@ -42,7 +42,7 @@ TRANSFORMS_REGISTRY = {
         'random_brightness_contrast': A.RandomBrightnessContrast,
         'color_jitter': A.ColorJitter,
         'blur': A.Blur,
-        'normalize': A.augmentations.transforms.Normalize,
+        'normalize': A.augmentations.Normalize,
         'to_tensor': ToTensor,
         'one_of': A.OneOf,
         'random_rotate': RandomRotate,
