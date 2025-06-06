@@ -95,12 +95,12 @@ def main():
     else:
         assert cfg.regime.type == "training"
         if cfg.model.resume:
-            evaluator.val()
+            evaluator.run()
         for epoch in range(start_epoch, cfg.data.max_epochs):
             is_last_epoch = epoch == cfg.data.max_epochs - 1
             trainer.train(epoch, is_last_epoch)
             if epoch % cfg.utils.eval_freq == 0 or is_last_epoch:
-                evaluator.val(epoch)
+                evaluator.run(epoch)
 
 
 if __name__ == '__main__':

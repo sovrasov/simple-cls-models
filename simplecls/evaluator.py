@@ -10,7 +10,7 @@ from .torch_utils import compute_accuracy, put_on_device
 
 @dataclass
 class Evaluator:
-    model: object
+    model: torch.nn.Module
     val_loader: object
     cfg: dict
     max_epoch: int
@@ -21,14 +21,14 @@ class Evaluator:
     half_precision: bool = False
 
     @torch.no_grad()
-    def val(self, epoch=None):
+    def run(self, epoch=None):
         ''' procedure launching main validation '''
         acc_meter = AverageMeter()
         cuda_half_p = self.half_precision and torch.cuda.is_available()
         if cuda_half_p:
-            autocaster = partial(torch.cuda.amp.autocast, enabled=True)
+            autocaster = partial(torch.amp.autocast, enabled=True, device_type="cuda")
         else:
-            autocaster = partial(torch.cuda.amp.autocast, enabled=False)
+            autocaster = partial(torch.amp.autocast, enabled=False, device_type="cuda")
 
         xpu_half_p = self.half_precision and hasattr(torch, 'xpu')
         if xpu_half_p:
